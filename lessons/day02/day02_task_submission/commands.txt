@@ -1,0 +1,3 @@
+terraform -version
+aws --version
+aws configure
