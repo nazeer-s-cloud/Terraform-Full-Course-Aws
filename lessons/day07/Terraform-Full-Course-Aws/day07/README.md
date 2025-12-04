@@ -15,7 +15,9 @@ Resources are simulated using **null_resource** to avoid AWS charges.
 ## How to Run
 
 terraform init
+
 terraform validate
+
 terraform plan
 
 
