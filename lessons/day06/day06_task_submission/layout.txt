@@ -1,0 +1,9 @@
+Terraform-Full-Course-Aws/
+  └── day06/
+        ├── providers.tf
+        ├── backend.tf         # if using remote state
+        ├── variables.tf
+        ├── locals.tf
+        ├── main.tf
+        ├── outputs.tf
+        └── terraform.tfvars.example
