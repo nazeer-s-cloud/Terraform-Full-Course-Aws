@@ -1,121 +1,91 @@
-# String type
+# String Variables
 variable "environment" {
-    type = string
-    description = "the environment type"
-    default = "dev"
+  type        = string
+  default     = "dev"
+  description = "Environment name"
 }
 
 variable "region" {
-    type = string
-    description = "the aws region"
-    default = "us-east-1"
+  type        = string
+  default     = "us-east-1"
 }
 
-variable "instance_type" {
-    type = string
-    description = "the ec2 instance type"
-    default = "t2.micro"
-}
-
-# Number type
+# Number Variable
 variable "instance_count" {
-    type = number
-    description = "the number of ec2 instances to create"
-    default = 1
+  type        = number
+  default     = 1
 }
 
-variable "storage_size" {
-    type = number
-    description = "the storage size for ec2 instance in GB"
-    default = 8
-}
-
-# Bool type
-variable "enable_monitoring" {
-    type = bool
-    description = "enable detailed monitoring for ec2 instances"
-    default = false
+# Bool Variables
+variable "monitoring_enabled" {
+  type        = bool
+  default     = true
 }
 
 variable "associate_public_ip" {
-    type = bool
-    description = "associate public ip to ec2 instance"
-    default = true
+  type        = bool
+  default     = true
 }
 
-# List type - IMPORTANT: Allows duplicates, maintains order
-variable "allowed_cidr_blocks" {
-    type = list(string)
-    description = "list of allowed cidr blocks for security group"
-    default = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
-    # Access: var.allowed_cidr_blocks[0] = "10.0.0.0/8"
-    # Can have duplicates: ["10.0.0.0/8", "10.0.0.0/8"] is valid
+# List (string)
+variable "cidr_block" {
+  type    = list(string)
+  default = ["10.0.0.0/8", "192.168.0.0/16", "172.16.0.0/12"]
 }
 
-variable "allowed_instance_types" {
-    type = list(string)
-    description = "list of allowed ec2 instance types"
-    default = ["t2.micro", "t2.small", "t3.micro"]
-    # Order matters: index 0 = t2.micro, index 1 = t2.small
+# Allowed instance types - list(string)
+variable "allowed_vm_types" {
+  type    = list(string)
+  default = ["t2.micro", "t2.small", "t3.micro", "t3.small"]
 }
 
-# Map type - IMPORTANT: Key-value pairs, keys must be unique
-variable "instance_tags" {
-    type = map(string)
-    description = "tags to apply to the ec2 instances"
-    default = {
-        "Environment" = "dev"
-        "Project" = "terraform-course"
-        "Owner" = "devops-team"
-    }
-    # Access: var.instance_tags["Environment"] = "dev"
-    # Keys are always strings, values must match the declared type
+# Set(string)
+variable "allowed_region" {
+  type    = set(string)
+  default = ["us-east-1", "us-west-2", "eu-west-1"]
 }
 
-# Set type - IMPORTANT: No duplicates allowed, order doesn't matter
-variable "availability_zones" {
-    type = set(string)
-    description = "set of availability zones (no duplicates)"
-    default = ["us-east-1a", "us-east-1b", "us-east-1c"]
-    # KEY DIFFERENCE FROM LIST:
-    # - Automatically removes duplicates
-    # - Order is not guaranteed
-    # - Cannot access by index like set[0] - need to convert to list first
+# Map(string)
+variable "tags" {
+  type = map(string)
+  default = {
+    Environment = "dev"
+    Name        = "dev-Instance"
+    created_by  = "terraform"
+  }
 }
 
-# Tuple type - IMPORTANT: Fixed length, each position has specific type
+# Tuple
+variable "ingress_values" {
+  type    = tuple([number, string, number])
+  default = [443, "tcp", 443]
+}
+
+# Object
+variable "config" {
+  type = object({
+    region         = string
+    monitoring     = bool
+    instance_count = number
+  })
+
+  default = {
+    region         = "us-east-1"
+    monitoring     = true
+    instance_count = 1
+  }
+  
+}
+
+# Add your variable declarations here
+
 variable "network_config" {
-    type = tuple([string, string, number])
-    description = "Network configuration (VPC CIDR, subnet CIDR, port number)"
-    default = ["10.0.0.0/16", "10.0.1.0/24", 80]
-    # CRITICAL RULES:
-    # - Position 0 must be string (VPC CIDR)
-    # - Position 1 must be string (subnet CIDR)  
-    # - Position 2 must be number (port)
-    # - Cannot add/remove elements - length is fixed
-    # Access: var.network_config[0], var.network_config[1], var.network_config[2]
+  description = "Tuple containing VPC CIDR, subnet CIDR base, and subnet mask"
+  type        = list(string)
 }
 
-# Object type - IMPORTANT: Named attributes with specific types
-variable "server_config" {
-    type = object({
-        name = string
-        instance_type = string
-        monitoring = bool
-        storage_gb = number
-        backup_enabled = bool
-    })
-    description = "Complete server configuration object"
-    default = {
-        name = "web-server"
-        instance_type = "t2.micro"
-        monitoring = true
-        storage_gb = 20
-        backup_enabled = false
-    }
-    # KEY BENEFITS:
-    # - Self-documenting structure
-    # - Type safety for each attribute
-    # - Access: var.server_config.name, var.server_config.monitoring
-    # - All attributes must be provided (unless optional)
+variable "allowed_cidr_blocks" {
+  type        = list(string)
+  description = "CIDR blocks allowed for ingress traffic"
+  default     = ["0.0.0.0/0"]
 }
