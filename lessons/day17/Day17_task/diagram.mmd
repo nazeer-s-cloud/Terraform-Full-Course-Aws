@@ -1,0 +1,43 @@
+flowchart LR
+  subgraph Internet
+    User["Users / Clients"]
+  end
+
+  subgraph Networking["Application Layer"]
+    ALB["Application Load Balancer (ALB)"]
+  end
+
+  subgraph Blue["Blue Environment (Production)\nElastic Beanstalk - v1"]
+    BlueEB["Elastic Beanstalk Environment\n(my-app-bluegreen-blue-env)"]
+    BlueASG["Auto Scaling Group / EC2 Instances"]
+    BlueEB --> BlueASG
+  end
+
+  subgraph Green["Green Environment (Staging)\nElastic Beanstalk - v2"]
+    GreenEB["Elastic Beanstalk Environment\n(my-app-bluegreen-green)"]
+    GreenASG["Auto Scaling Group / EC2 Instances"]
+    GreenEB --> GreenASG
+  end
+
+  User -->|HTTP/HTTPS| ALB
+  ALB --> BlueEB
+  ALB --> GreenEB
+
+  S3["S3: app_versions bucket\n(app_v1.zip, app_v2.zip)"]
+  S3 -->|app_v1.zip| BlueEB
+  S3 -->|app_v2.zip| GreenEB
+
+  IAM["IAM: eb_ec2_role, eb_service_role, instance profile"]
+  IAM --> BlueASG
+  IAM --> GreenASG
+
+  Terraform["Terraform (main.tf, blue-environment.tf, green-environment.tf, etc.)"]
+  Terraform --> S3
+  Terraform --> IAM
+  Terraform --> BlueEB
+  Terraform --> GreenEB
+
+  Scripts["Scripts: package-apps.sh / swap-environments.sh"]
+  Scripts --> S3
+  Scripts -->|CNAME swap| SwapOp["Swap CNAMEs (swap-environments)"]
+  SwapOp -.-> ALB
