@@ -3,7 +3,6 @@ variable "cluster_name" {
   
 }
 
-variable "subnet_id" {
+variable "subnet_ids" {
   type = list(string)
-  
 }
